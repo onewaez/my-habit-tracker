@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Habit Tracker TMA</title>
+    <title>Habit Tracker TMA v2</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -33,8 +33,8 @@
         <div class="flex gap-2 overflow-x-auto pb-3 no-scrollbar snap-x" id="categories-container"></div>
 
         <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-3xl p-3 mb-6">
-            <p class="text-[11px] text-zinc-500 font-bold uppercase mb-2 px-1 text-center">Контроль за последние 7 дней</p>
-            <div class="grid grid-cols-7 gap-1 text-center" id="calendar-strip"></div>
+            <p class="text-[11px] text-zinc-500 font-bold uppercase mb-2 px-1 text-center">Контроль за последние 30 дней</p>
+            <div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar snap-x" id="calendar-strip"></div>
         </div>
 
         <div class="space-y-3" id="habits-list"></div>
@@ -45,25 +45,46 @@
     </div>
 
     <div id="add-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center hidden z-50 p-4">
-        <div class="bg-zinc-900 border border-zinc-800 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 shadow-2xl">
+        <div class="bg-zinc-900 border border-zinc-800 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 shadow-2xl overflow-y-auto max-h-[90vh]">
             <div class="flex justify-between items-center">
-                <h3 class="text-lg font-bold">Новая привычка</h3>
+                <h3 class="text-lg font-bold">Управление трекером</h3>
                 <button onclick="toggleModal(false)" class="text-zinc-500 hover:text-white text-sm">Закрыть</button>
             </div>
             
-            <div>
-                <label class="text-xs text-zinc-400 font-bold block mb-1">Название</label>
-                <input type="text" id="habit-title" placeholder="Например: Зал, Книги, Вода..." class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
+            <div class="space-y-3">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-400">Новая привычка</h4>
+                <div>
+                    <label class="text-[11px] text-zinc-400 font-bold block mb-1">Название привычки</label>
+                    <input type="text" id="habit-title" placeholder="Например: Зал, Книги, Вода..." class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                </div>
+
+                <div>
+                    <label class="text-[11px] text-zinc-400 font-bold block mb-2">Выберите раздел</label>
+                    <div class="grid grid-cols-3 gap-2" id="modal-categories"></div>
+                </div>
+
+                <button onclick="createNewHabit()" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 rounded-xl text-sm transition-all active:scale-[0.99] shadow-lg shadow-indigo-500/20">
+                    Создать привычку
+                </button>
             </div>
 
-            <div>
-                <label class="text-xs text-zinc-400 font-bold block mb-2">Раздел (Категория)</label>
-                <div class="grid grid-cols-3 gap-2" id="modal-categories"></div>
+            <div class="border-t border-zinc-800 pt-4 space-y-3">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-amber-400">Новый раздел (Категория)</h4>
+                <div class="flex gap-2">
+                    <div class="w-16">
+                        <label class="text-[11px] text-zinc-400 font-bold block mb-1">Эмодзи</label>
+                        <input type="text" id="category-icon" value="📝" class="w-full text-center bg-zinc-800 border border-zinc-700 rounded-xl px-2 py-2.5 text-sm text-white focus:outline-none">
+                    </div>
+                    <div class="flex-1">
+                        <label class="text-[11px] text-zinc-400 font-bold block mb-1">Название раздела</label>
+                        <input type="text" id="category-title" placeholder="Например: Gym, Work..." class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors">
+                    </div>
+                </div>
+                <button onclick="createNewCategory()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-amber-400 border border-zinc-700 font-bold py-2 rounded-xl text-xs transition-all active:scale-[0.99]">
+                    + Добавить раздел
+                </button>
             </div>
 
-            <button onclick="createNewHabit()" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3.5 rounded-xl text-sm transition-all active:scale-[0.99] mt-2 shadow-lg shadow-indigo-500/20">
-                Создать привычку
-            </button>
         </div>
     </div>
 
@@ -71,38 +92,46 @@
         const tg = window.Telegram?.WebApp;
         if (tg) { tg.ready(); tg.expand(); }
 
-        const CATEGORIES = [
-            { id: 'All', title: 'Все', icon: '✨' },
-            { id: 'Work', title: 'Work', icon: '💼' },
-            { id: 'Gym', title: 'Gym', icon: '💪' },
-            { id: 'Personal', title: 'Personal', icon: '🌱' }
-        ];
+        // Глобальное состояние
+        let state = {
+            habits: [],
+            categories: [
+                { id: 'All', title: 'Все', icon: '✨' }
+            ]
+        };
 
-        let habits = [];
         let currentFilter = 'All';
-        let selectedModalCategory = 'Work';
+        let selectedModalCategory = '';
+        let isFirstLoad = true;
         
-        // Генерация последних 7 дней динамически
-        const getPast7Days = () => {
+        // Генерация последних 30 дней динамически
+        const getPast30Days = () => {
             const dates = [];
-            for (let i = 6; i >= 0; i--) {
+            for (let i = 29; i >= 0; i--) {
                 const d = new Date();
                 d.setDate(d.getDate() - i);
                 dates.push(d.toISOString().split('T')[0]);
             }
             return dates;
         };
-        const past7Days = getPast7Days();
-        let activeSelectedDate = past7Days[6]; // По умолчанию сегодня
+        const past30Days = getPast30Days();
+        let activeSelectedDate = past30Days[29]; // По умолчанию сегодня
 
         const getDayName = (dateStr) => ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'][new Date(dateStr).getDay()];
         const getDayNumber = (dateStr) => new Date(dateStr).getDate();
 
+        // Загрузка данных
         const loadData = () => {
             if (tg?.CloudStorage) {
-                tg.CloudStorage.getItem('tma_habits_data', (err, value) => {
-                    if (!err && value) { habits = JSON.parse(value); } 
-                    else { loadLocalStorage(); }
+                tg.CloudStorage.getItem('tma_state_v2', (err, value) => {
+                    if (!err && value) { 
+                        state = JSON.parse(value); 
+                        if(!state.categories.some(c => c.id === 'All')) {
+                            state.categories.unshift({ id: 'All', title: 'Все', icon: '✨' });
+                        }
+                    } else { 
+                        loadLocalStorage(); 
+                    }
                     initApp();
                 });
             } else {
@@ -112,18 +141,22 @@
         };
 
         const loadLocalStorage = () => {
-            const local = localStorage.getItem('tma_habits_data');
-            habits = local ? JSON.parse(local) : [
-                { id: '1', title: 'Код на Python', category: 'Work', createdAt: past7Days[0], history: [past7Days[1], past7Days[3], past7Days[5]] },
-                { id: '2', title: 'Тренировка в зале', category: 'Gym', createdAt: past7Days[0], history: [past7Days[2], past7Days[4]] }
-            ];
+            const local = localStorage.getItem('tma_state_v2');
+            if (local) {
+                state = JSON.parse(local);
+            } else {
+                state = {
+                    habits: [],
+                    categories: [{ id: 'All', title: 'Все', icon: '✨' }]
+                };
+            }
         };
 
         const saveData = () => {
-            const jsonStr = JSON.stringify(habits);
-            localStorage.setItem('tma_habits_data', jsonStr);
+            const jsonStr = JSON.stringify(state);
+            localStorage.setItem('tma_state_v2', jsonStr);
             if (tg?.CloudStorage) {
-                tg.CloudStorage.setItem('tma_habits_data', jsonStr, (err) => { if (err) console.error(err); });
+                tg.CloudStorage.setItem('tma_state_v2', jsonStr, (err) => { if (err) console.error(err); });
             }
         };
 
@@ -132,15 +165,15 @@
         // ЛОГИКА РАСЧЕТА ПРОЦЕНТА ПРОПУСКОВ
         const calculateMissRate = (habit) => {
             const created = new Date(habit.createdAt);
-            const today = new Date(past7Days[6]);
+            const today = new Date(past30Days[29]);
             const totalDays = Math.max(1, Math.floor((today - created) / (1000 * 60 * 60 * 24)) + 1);
-            const completedDays = habit.history.filter(d => d <= past7Days[6]).length;
+            const completedDays = habit.history.filter(d => d <= past30Days[29]).length;
             return Math.max(0, Math.round(((totalDays - completedDays) / totalDays) * 100));
         };
 
         const toggleHabitDate = (habitId, dateStr) => {
             triggerHaptic();
-            const habit = habits.find(h => h.id === habitId);
+            const habit = state.habits.find(h => h.id === habitId);
             if (!habit) return;
 
             const idx = habit.history.indexOf(dateStr);
@@ -155,49 +188,91 @@
 
         const setFilter = (catId) => { triggerHaptic(); currentFilter = catId; renderCategories(); renderHabits(); };
 
+        // Удаление привычки
+        const deleteHabit = (habitId) => {
+            if (confirm("Удалить эту привычку и всю её историю?")) {
+                triggerHaptic();
+                state.habits = state.habits.filter(h => h.id !== habitId);
+                saveData();
+                renderHabits();
+                renderCalendarStrip();
+                renderGlobalStats();
+            }
+        };
+
+        // Удаление раздела
+        const deleteCategory = (catId, e) => {
+            e.stopPropagation(); 
+            if (confirm("Удалить этот раздел? Привычки останутся, но потеряют категорию.")) {
+                triggerHaptic();
+                state.categories = state.categories.filter(c => c.id !== catId);
+                state.habits.forEach(h => { if(h.category === catId) h.category = ''; });
+                if (currentFilter === catId) currentFilter = 'All';
+                saveData();
+                renderCategories();
+                renderHabits();
+            }
+        };
+
         const renderCategories = () => {
-            document.getElementById('categories-container').innerHTML = CATEGORIES.map(cat => `
-                <button onclick="setFilter('${cat.id}')" class="shrink-0 px-4 py-2.5 rounded-2xl text-xs font-bold border transition-all ${
-                    currentFilter === cat.id ? 'bg-indigo-500 border-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'bg-zinc-900 border-zinc-800 text-zinc-400'
-                }"><span class="mr-1">${cat.icon}</span> ${cat.title}</button>
-            `).join('');
+            document.getElementById('categories-container').innerHTML = state.categories.map(cat => {
+                const isAll = cat.id === 'All';
+                return `
+                    <button onclick="setFilter('${cat.id}')" class="shrink-0 flex items-center gap-1 px-4 py-2.5 rounded-2xl text-xs font-bold border transition-all ${
+                        currentFilter === cat.id ? 'bg-indigo-500 border-indigo-500 text-white shadow-lg shadow-indigo-500/20' : 'bg-zinc-900 border-zinc-800 text-zinc-400'
+                    }">
+                        <span>${cat.icon}</span> 
+                        <span>${cat.title}</span>
+                        ${!isAll ? `<span onclick="deleteCategory('${cat.id}', event)" class="ml-1 text-[10px] text-zinc-500 hover:text-rose-400">✕</span>` : ''}
+                    </button>
+                `;
+            }).join('');
         };
 
         const renderCalendarStrip = () => {
-            document.getElementById('calendar-strip').innerHTML = past7Days.map(date => {
+            const strip = document.getElementById('calendar-strip');
+            strip.innerHTML = past30Days.map(date => {
                 const isSelected = activeSelectedDate === date;
-                const isToday = date === past7Days[6];
-                const completedCount = habits.filter(h => h.history.includes(date)).length;
+                const isToday = date === past30Days[29];
+                const completedCount = state.habits.filter(h => h.history.includes(date)).length;
                 
                 let dotColor = 'bg-zinc-700';
-                if (habits.length > 0 && completedCount > 0) {
-                    dotColor = (completedCount / habits.length === 1) ? 'bg-emerald-400' : 'bg-indigo-400';
+                if (state.habits.length > 0 && completedCount > 0) {
+                    dotColor = (completedCount / state.habits.length === 1) ? 'bg-emerald-400' : 'bg-indigo-400';
                 }
 
                 return `
-                    <div onclick="selectStripDate('${date}')" class="flex flex-col items-center p-2 rounded-2xl cursor-pointer ${isSelected ? 'bg-zinc-800 ring-2 ring-indigo-500/50' : ''}">
-                        <span class="text-[10px] ${isToday ? 'text-indigo-400 font-bold' : 'text-zinc-500'}">${getDayName(date)}</span>
-                        <span class="text-sm font-bold my-1 ${isToday ? 'text-indigo-400' : 'text-zinc-200'}">${getDayNumber(date)}</span>
+                    <div onclick="selectStripDate('${date}')" class="shrink-0 w-12 flex flex-col items-center p-2 rounded-2xl cursor-pointer transition-all ${isSelected ? 'bg-zinc-800 ring-2 ring-indigo-500/50' : ''}">
+                        <span class="text-[9px] ${isToday ? 'text-indigo-400 font-bold' : 'text-zinc-500'}">${getDayName(date)}</span>
+                        <span class="text-sm font-bold my-0.5 ${isToday ? 'text-indigo-400 scale-105 block' : 'text-zinc-200'}">${getDayNumber(date)}</span>
                         <div class="w-1.5 h-1.5 rounded-full ${dotColor}"></div>
                     </div>
                 `;
             }).join('');
+
+            // Автоматический скролл к сегодняшнему дню (в самый правый край) при первом запуске
+            if (isFirstLoad) {
+                setTimeout(() => {
+                    strip.scrollLeft = strip.scrollWidth;
+                    isFirstLoad = false;
+                }, 100);
+            }
         };
 
         const selectStripDate = (date) => { triggerHaptic(); activeSelectedDate = date; renderCalendarStrip(); renderHabits(); };
 
         const renderGlobalStats = () => {
-            if (habits.length === 0) { document.getElementById('global-success').innerText = '0%'; return; }
-            const totalMiss = habits.reduce((acc, h) => acc + calculateMissRate(h), 0);
-            document.getElementById('global-success').innerText = `${100 - Math.round(totalMiss / habits.length)}%`;
+            if (state.habits.length === 0) { document.getElementById('global-success').innerText = '0%'; return; }
+            const totalMiss = state.habits.reduce((acc, h) => acc + calculateMissRate(h), 0);
+            document.getElementById('global-success').innerText = `${100 - Math.round(totalMiss / state.habits.length)}%`;
         };
 
         const renderHabits = () => {
-            const filtered = habits.filter(h => currentFilter === 'All' || h.category === currentFilter);
+            const filtered = state.habits.filter(h => currentFilter === 'All' || h.category === currentFilter);
             const container = document.getElementById('habits-list');
 
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-zinc-600 border border-dashed border-zinc-800 rounded-3xl text-sm">Нет привычек в этом разделе</div>`;
+                container.innerHTML = `<div class="text-center py-10 text-zinc-600 border border-dashed border-zinc-800 rounded-3xl text-sm">Нет привычек в этом разделе. Нажмите "+", чтобы добавить.</div>`;
                 return;
             }
 
@@ -205,7 +280,7 @@
                 const missRate = calculateMissRate(habit);
                 const isDone = habit.history.includes(activeSelectedDate);
                 const isAvailable = activeSelectedDate >= habit.createdAt;
-                const cat = CATEGORIES.find(c => c.id === habit.category);
+                const cat = state.categories.find(c => c.id === habit.category) || { title: 'Без раздела', icon: '📁' };
 
                 let mColor = 'text-emerald-400';
                 if (missRate > 40) mColor = 'text-rose-400';
@@ -215,8 +290,11 @@
                     <div class="bg-zinc-900 border border-zinc-800/80 rounded-3xl p-4">
                         <div class="flex justify-between items-start mb-3">
                             <div>
-                                <span class="text-[10px] font-bold bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full">${cat.icon} ${cat.title}</span>
-                                <h3 class="text-base font-bold mt-1 text-zinc-100">${habit.title}</h3>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-[10px] font-bold bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full">${cat.icon} ${cat.title}</span>
+                                    <button onclick="deleteHabit('${habit.id}')" class="text-[10px] text-zinc-600 hover:text-rose-400 font-medium ml-1">Удалить</button>
+                                </div>
+                                <h3 class="text-base font-bold mt-1.5 text-zinc-100">${habit.title}</h3>
                             </div>
                             <div class="text-right">
                                 <span class="text-[10px] text-zinc-500 block font-bold">Пропуски</span>
@@ -243,18 +321,58 @@
         };
 
         const renderModalCategories = () => {
-            document.getElementById('modal-categories').innerHTML = CATEGORIES.filter(c => c.id !== 'All').map(cat => `
+            const userCats = state.categories.filter(c => c.id !== 'All');
+            const container = document.getElementById('modal-categories');
+            
+            if(userCats.length === 0) {
+                container.innerHTML = `<div class="col-span-3 text-xs text-zinc-500 italic py-2 text-center">Сначала добавьте раздел ниже 👇</div>`;
+                selectedModalCategory = '';
+                return;
+            }
+
+            if(!selectedModalCategory && userCats.length > 0) {
+                selectedModalCategory = userCats[0].id;
+            }
+
+            container.innerHTML = userCats.map(cat => `
                 <button onclick="selectedModalCategory='${cat.id}'; renderModalCategories();" type="button" class="px-3 py-2 rounded-xl text-xs font-bold border transition-all text-center ${
                     selectedModalCategory === cat.id ? 'bg-indigo-500 border-indigo-500 text-white' : 'bg-zinc-800 border-zinc-700 text-zinc-400'
-                }"><div>${cat.icon}</div><div class="mt-0.5">${cat.title}</div></button>
+                }"><div>${cat.icon}</div><div class="mt-0.5 truncate">${cat.title}</div></button>
             `).join('');
         };
 
+        // Создание нового раздела
+        const createNewCategory = () => {
+            const titleInput = document.getElementById('category-title');
+            const iconInput = document.getElementById('category-icon');
+            const title = titleInput.value.trim();
+            const icon = iconInput.value.trim() || '📝';
+
+            if (!title) return;
+
+            const newId = 'cat_' + Date.now();
+            state.categories.push({ id: newId, title: title, icon: icon });
+            saveData();
+            
+            titleInput.value = '';
+            triggerHaptic();
+            renderCategories();
+            renderModalCategories();
+        };
+
+        // Создание новой привычки
         const createNewHabit = () => {
             const title = document.getElementById('habit-title').value.trim();
             if (!title) return;
 
-            habits.push({ id: Date.now().toString(), title: title, category: selectedModalCategory, createdAt: past7Days[6], history: [] });
+            state.habits.push({ 
+                id: Date.now().toString(), 
+                title: title, 
+                category: selectedModalCategory, 
+                createdAt: past30Days[29], 
+                history: [] 
+            });
+            
             saveData();
             toggleModal(false);
             document.getElementById('habit-title').value = '';
