@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Habit Tracker TMA v2</title>
+    <title>Habit Tracker TMA v3</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -16,25 +16,25 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="bg-[#0f0f12] text-zinc-100 font-sans min-h-screen pb-10">
+<body class="bg-[#0f0f12] text-zinc-100 font-sans min-h-screen pb-12">
 
     <div class="max-w-md mx-auto px-4 pt-4">
-        <div class="flex justify-between items-center mb-6">
+        <div class="flex justify-between items-center mb-5">
             <div>
-                <p class="text-xs text-zinc-500 font-medium uppercase tracking-wider" id="current-date">Суббота, 20 июня</p>
-                <h1 class="text-2xl font-black bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">Мои Привычки</h1>
+                <p class="text-xs text-zinc-500 font-medium uppercase tracking-wider" id="current-date">...</p>
+                <h1 class="text-2xl font-black bg-gradient-to-r from-white to-zinc-400 bg-clip-text text-transparent">Мой Трекер</h1>
             </div>
-            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl px-3 py-2 text-center min-w-[70px]">
-                <span class="text-[10px] text-zinc-500 block uppercase font-bold">Успех</span>
+            <div class="bg-zinc-900 border border-zinc-800 rounded-2xl px-3 py-2 text-center min-w-[75px]">
+                <span class="text-[10px] text-zinc-500 block uppercase font-bold tracking-tight">Успех</span>
                 <span class="text-sm font-black text-emerald-400" id="global-success">0%</span>
             </div>
         </div>
 
         <div class="flex gap-2 overflow-x-auto pb-3 no-scrollbar snap-x" id="categories-container"></div>
 
-        <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-3xl p-3 mb-6">
-            <p class="text-[11px] text-zinc-500 font-bold uppercase mb-2 px-1 text-center">Контроль за последние 30 дней</p>
-            <div class="flex gap-2 overflow-x-auto pb-2 no-scrollbar snap-x" id="calendar-strip"></div>
+        <div class="bg-zinc-900/60 border border-zinc-800/80 rounded-3xl p-3 mb-5">
+            <p class="text-[11px] text-zinc-500 font-bold uppercase mb-2 px-1 text-center tracking-wide">Контроль за последние 30 дней</p>
+            <div class="flex gap-2 overflow-x-auto pb-1 no-scrollbar snap-x" id="calendar-strip"></div>
         </div>
 
         <div class="space-y-3" id="habits-list"></div>
@@ -44,43 +44,50 @@
         </button>
     </div>
 
-    <div id="add-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center hidden z-50 p-4">
-        <div class="bg-zinc-900 border border-zinc-800 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-6 space-y-4 shadow-2xl overflow-y-auto max-h-[90vh]">
-            <div class="flex justify-between items-center">
-                <h3 class="text-lg font-bold">Управление трекером</h3>
-                <button onclick="toggleModal(false)" class="text-zinc-500 hover:text-white text-sm">Закрыть</button>
+    <div id="add-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center hidden z-50 p-3 transition-all">
+        <div class="bg-zinc-900 border border-zinc-800 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4 shadow-2xl overflow-y-auto max-h-[85vh] mb-0 transition-all no-scrollbar" id="modal-card">
+            
+            <div class="flex justify-between items-center pb-1 border-b border-zinc-800/60">
+                <h3 class="text-base font-bold text-zinc-200">Настройки трекера</h3>
+                <button onclick="toggleModal(false)" class="text-zinc-500 hover:text-white text-xs bg-zinc-800 px-3 py-1 rounded-xl">Скрыть</button>
             </div>
             
             <div class="space-y-3">
-                <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-400">Новая привычка</h4>
+                <h4 class="text-[11px] font-bold uppercase tracking-wider text-indigo-400">🔥 Новая привычка</h4>
                 <div>
-                    <label class="text-[11px] text-zinc-400 font-bold block mb-1">Название привычки</label>
-                    <input type="text" id="habit-title" placeholder="Например: Зал, Книги, Вода..." class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors">
+                    <input type="text" id="habit-title" placeholder="Название: Поучить C++, Зал, Вода..." class="w-full bg-zinc-800 border border-zinc-700/80 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors input-field">
                 </div>
 
                 <div>
-                    <label class="text-[11px] text-zinc-400 font-bold block mb-2">Выберите раздел</label>
-                    <div class="grid grid-cols-3 gap-2" id="modal-categories"></div>
+                    <label class="text-[10px] text-zinc-400 font-bold block mb-1.5 uppercase">Выберите раздел:</label>
+                    <div class="grid grid-cols-3 gap-1.5" id="modal-categories"></div>
                 </div>
 
-                <button onclick="createNewHabit()" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 rounded-xl text-sm transition-all active:scale-[0.99] shadow-lg shadow-indigo-500/20">
+                <button onclick="createNewHabit()" class="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider transition-all active:scale-[0.99] shadow-lg shadow-indigo-500/20">
                     Создать привычку
                 </button>
             </div>
 
-            <div class="border-t border-zinc-800 pt-4 space-y-3">
-                <h4 class="text-xs font-bold uppercase tracking-wider text-amber-400">Новый раздел (Категория)</h4>
-                <div class="flex gap-2">
-                    <div class="w-16">
-                        <label class="text-[11px] text-zinc-400 font-bold block mb-1">Эмодзи</label>
-                        <input type="text" id="category-icon" value="📝" class="w-full text-center bg-zinc-800 border border-zinc-700 rounded-xl px-2 py-2.5 text-sm text-white focus:outline-none">
+            <div class="border-t border-zinc-800/80 pt-4 space-y-3">
+                <h4 class="text-[11px] font-bold uppercase tracking-wider text-amber-400">🎨 Создать новый раздел</h4>
+                <div class="grid grid-cols-3 gap-2">
+                    <div class="col-span-1">
+                        <label class="text-[10px] text-zinc-500 font-bold block mb-1">Эмодзи</label>
+                        <input type="text" id="category-icon" value="⚡️" class="w-full text-center bg-zinc-800 border border-zinc-700 rounded-xl py-2 text-sm text-white focus:outline-none input-field">
                     </div>
-                    <div class="flex-1">
-                        <label class="text-[11px] text-zinc-400 font-bold block mb-1">Название раздела</label>
-                        <input type="text" id="category-title" placeholder="Например: Gym, Work..." class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors">
+                    <div class="col-span-2">
+                        <label class="text-[10px] text-zinc-500 font-bold block mb-1">Название</label>
+                        <input type="text" id="category-title" placeholder="Gym, Код..." class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500 transition-colors input-field">
                     </div>
                 </div>
-                <button onclick="createNewCategory()" class="w-full bg-zinc-800 hover:bg-zinc-700 text-amber-400 border border-zinc-700 font-bold py-2 rounded-xl text-xs transition-all active:scale-[0.99]">
+
+                <div>
+                    <label class="text-[10px] text-zinc-500 font-bold block mb-1">Цветовой маркер</label>
+                    <div class="flex gap-2" id="color-selector">
+                        </div>
+                </div>
+
+                <button onclick="createNewCategory()" class="w-full bg-zinc-800 hover:bg-zinc-750 text-amber-400 border border-zinc-700/60 font-bold py-2 rounded-xl text-[11px] uppercase tracking-wider transition-all">
                     + Добавить раздел
                 </button>
             </div>
@@ -92,19 +99,25 @@
         const tg = window.Telegram?.WebApp;
         if (tg) { tg.ready(); tg.expand(); }
 
-        // Глобальное состояние
+        // Палитра доступных цветов для разделов
+        const colorPalette = {
+            indigo: { border: 'border-indigo-500/30', bg: 'bg-indigo-500/10', text: 'text-indigo-400', raw: '#6366f1' },
+            emerald: { border: 'border-emerald-500/30', bg: 'bg-emerald-500/10', text: 'text-emerald-400', raw: '#10b981' },
+            amber: { border: 'border-amber-500/30', bg: 'bg-amber-500/10', text: 'text-amber-400', raw: '#f59e0b' },
+            rose: { border: 'border-rose-500/30', bg: 'bg-rose-500/10', text: 'text-rose-400', raw: '#f43f5e' },
+            purple: { border: 'border-purple-500/30', bg: 'bg-purple-500/10', text: 'text-purple-400', raw: '#a855f7' }
+        };
+        let selectedColorKey = 'indigo';
+
         let state = {
             habits: [],
-            categories: [
-                { id: 'All', title: 'Все', icon: '✨' }
-            ]
+            categories: [{ id: 'All', title: 'Все', icon: '✨', color: 'indigo' }]
         };
 
         let currentFilter = 'All';
         let selectedModalCategory = '';
         let isFirstLoad = true;
         
-        // Генерация последних 30 дней динамически
         const getPast30Days = () => {
             const dates = [];
             for (let i = 29; i >= 0; i--) {
@@ -115,23 +128,21 @@
             return dates;
         };
         const past30Days = getPast30Days();
-        let activeSelectedDate = past30Days[29]; // По умолчанию сегодня
+        let activeSelectedDate = past30Days[29]; // Сегодня
 
         const getDayName = (dateStr) => ['Вс', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'][new Date(dateStr).getDay()];
         const getDayNumber = (dateStr) => new Date(dateStr).getDate();
 
-        // Загрузка данных
+        // Загрузка
         const loadData = () => {
             if (tg?.CloudStorage) {
-                tg.CloudStorage.getItem('tma_state_v2', (err, value) => {
+                tg.CloudStorage.getItem('tma_state_v3', (err, value) => {
                     if (!err && value) { 
                         state = JSON.parse(value); 
                         if(!state.categories.some(c => c.id === 'All')) {
-                            state.categories.unshift({ id: 'All', title: 'Все', icon: '✨' });
+                            state.categories.unshift({ id: 'All', title: 'Все', icon: '✨', color: 'indigo' });
                         }
-                    } else { 
-                        loadLocalStorage(); 
-                    }
+                    } else { loadLocalStorage(); }
                     initApp();
                 });
             } else {
@@ -141,28 +152,43 @@
         };
 
         const loadLocalStorage = () => {
-            const local = localStorage.getItem('tma_state_v2');
-            if (local) {
-                state = JSON.parse(local);
-            } else {
-                state = {
-                    habits: [],
-                    categories: [{ id: 'All', title: 'Все', icon: '✨' }]
-                };
-            }
+            const local = localStorage.getItem('tma_state_v3');
+            if (local) state = JSON.parse(local);
         };
 
         const saveData = () => {
             const jsonStr = JSON.stringify(state);
-            localStorage.setItem('tma_state_v2', jsonStr);
+            localStorage.setItem('tma_state_v3', jsonStr);
             if (tg?.CloudStorage) {
-                tg.CloudStorage.setItem('tma_state_v2', jsonStr, (err) => { if (err) console.error(err); });
+                tg.CloudStorage.setItem('tma_state_v3', jsonStr, (err) => {});
             }
         };
 
         const triggerHaptic = () => { if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light'); };
 
-        // ЛОГИКА РАСЧЕТА ПРОЦЕНТА ПРОПУСКОВ
+        // УМНЫЙ РАСЧЕТ ТЕКУЩЕГО СТРИКА (НЕПРЕРЫВНОЙ СЕРИИ ДНЕЙ)
+        const calculateStreak = (habit) => {
+            let streak = 0;
+            const todayStr = past30Days[29];
+            let checkDate = new Date(todayStr);
+
+            // Если сегодня привычка еще не сделана, проверяем со вчерашнего дня (серия еще не сломана)
+            if (!habit.history.includes(todayStr)) {
+                checkDate.setDate(checkDate.getDate() - 1);
+            }
+
+            while (true) {
+                const checkStr = checkDate.toISOString().split('T')[0];
+                if (habit.history.includes(checkStr)) {
+                    streak++;
+                    checkDate.setDate(checkDate.getDate() - 1); // Шаг назад
+                } else {
+                    break;
+                }
+            }
+            return streak;
+        };
+
         const calculateMissRate = (habit) => {
             const created = new Date(habit.createdAt);
             const today = new Date(past30Days[29]);
@@ -188,9 +214,8 @@
 
         const setFilter = (catId) => { triggerHaptic(); currentFilter = catId; renderCategories(); renderHabits(); };
 
-        // Удаление привычки
         const deleteHabit = (habitId) => {
-            if (confirm("Удалить эту привычку и всю её историю?")) {
+            if (confirm("Удалить привычку и её историю?")) {
                 triggerHaptic();
                 state.habits = state.habits.filter(h => h.id !== habitId);
                 saveData();
@@ -200,10 +225,9 @@
             }
         };
 
-        // Удаление раздела
         const deleteCategory = (catId, e) => {
             e.stopPropagation(); 
-            if (confirm("Удалить этот раздел? Привычки останутся, но потеряют категорию.")) {
+            if (confirm("Удалить этот раздел?")) {
                 triggerHaptic();
                 state.categories = state.categories.filter(c => c.id !== catId);
                 state.habits.forEach(h => { if(h.category === catId) h.category = ''; });
@@ -223,7 +247,7 @@
                     }">
                         <span>${cat.icon}</span> 
                         <span>${cat.title}</span>
-                        ${!isAll ? `<span onclick="deleteCategory('${cat.id}', event)" class="ml-1 text-[10px] text-zinc-500 hover:text-rose-400">✕</span>` : ''}
+                        ${!isAll ? `<span onclick="deleteCategory('${cat.id}', event)" class="ml-1 text-[10px] text-zinc-600 hover:text-rose-400">✕</span>` : ''}
                     </button>
                 `;
             }).join('');
@@ -242,20 +266,16 @@
                 }
 
                 return `
-                    <div onclick="selectStripDate('${date}')" class="shrink-0 w-12 flex flex-col items-center p-2 rounded-2xl cursor-pointer transition-all ${isSelected ? 'bg-zinc-800 ring-2 ring-indigo-500/50' : ''}">
+                    <div onclick="selectStripDate('${date}')" class="shrink-0 w-11 flex flex-col items-center p-1.5 rounded-xl cursor-pointer transition-all ${isSelected ? 'bg-zinc-800 ring-2 ring-indigo-500/50' : ''}">
                         <span class="text-[9px] ${isToday ? 'text-indigo-400 font-bold' : 'text-zinc-500'}">${getDayName(date)}</span>
-                        <span class="text-sm font-bold my-0.5 ${isToday ? 'text-indigo-400 scale-105 block' : 'text-zinc-200'}">${getDayNumber(date)}</span>
-                        <div class="w-1.5 h-1.5 rounded-full ${dotColor}"></div>
+                        <span class="text-xs font-bold my-0.5 ${isToday ? 'text-indigo-400 scale-105 block' : 'text-zinc-200'}">${getDayNumber(date)}</span>
+                        <div class="w-1 h-1 rounded-full ${dotColor}"></div>
                     </div>
                 `;
             }).join('');
 
-            // Автоматический скролл к сегодняшнему дню (в самый правый край) при первом запуске
             if (isFirstLoad) {
-                setTimeout(() => {
-                    strip.scrollLeft = strip.scrollWidth;
-                    isFirstLoad = false;
-                }, 100);
+                setTimeout(() => { strip.scrollLeft = strip.scrollWidth; isFirstLoad = false; }, 150);
             }
         };
 
@@ -272,36 +292,41 @@
             const container = document.getElementById('habits-list');
 
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="text-center py-10 text-zinc-600 border border-dashed border-zinc-800 rounded-3xl text-sm">Нет привычек в этом разделе. Нажмите "+", чтобы добавить.</div>`;
+                container.innerHTML = `<div class="text-center py-10 text-zinc-600 border border-dashed border-zinc-800 rounded-3xl text-xs">Раздел пуст. Добавьте привычку через "+".</div>`;
                 return;
             }
 
             container.innerHTML = filtered.map(habit => {
                 const missRate = calculateMissRate(habit);
+                const streak = calculateStreak(habit);
                 const isDone = habit.history.includes(activeSelectedDate);
                 const isAvailable = activeSelectedDate >= habit.createdAt;
-                const cat = state.categories.find(c => c.id === habit.category) || { title: 'Без раздела', icon: '📁' };
+                
+                // Извлекаем кастомные цвета раздела
+                const cat = state.categories.find(c => c.id === habit.category) || { title: 'Без раздела', icon: '📁', color: 'indigo' };
+                const cMap = colorPalette[cat.color] || colorPalette.indigo;
 
                 let mColor = 'text-emerald-400';
                 if (missRate > 40) mColor = 'text-rose-400';
                 else if (missRate > 15) mColor = 'text-amber-400';
 
                 return `
-                    <div class="bg-zinc-900 border border-zinc-800/80 rounded-3xl p-4">
+                    <div class="bg-zinc-900 border border-zinc-800/80 rounded-3xl p-4 transition-all">
                         <div class="flex justify-between items-start mb-3">
                             <div>
-                                <div class="flex items-center gap-1.5">
-                                    <span class="text-[10px] font-bold bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-full">${cat.icon} ${cat.title}</span>
+                                <div class="flex items-center gap-1.5 flex-wrap">
+                                    <span class="text-[9px] font-bold ${cMap.bg} ${cMap.text} border ${cMap.border} px-2 py-0.5 rounded-full">${cat.icon} ${cat.title}</span>
+                                    ${streak > 0 ? `<span class="text-[10px] font-black text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-full">🔥 ${streak} дн.</span>` : ''}
                                     <button onclick="deleteHabit('${habit.id}')" class="text-[10px] text-zinc-600 hover:text-rose-400 font-medium ml-1">Удалить</button>
                                 </div>
-                                <h3 class="text-base font-bold mt-1.5 text-zinc-100">${habit.title}</h3>
+                                <h3 class="text-base font-bold mt-2 text-zinc-100">${habit.title}</h3>
                             </div>
                             <div class="text-right">
-                                <span class="text-[10px] text-zinc-500 block font-bold">Пропуски</span>
+                                <span class="text-[9px] text-zinc-500 block font-bold uppercase">Пропуски</span>
                                 <span class="text-xs font-black ${mColor}">${missRate}%</span>
                             </div>
                         </div>
-                        <div class="flex justify-between items-center bg-zinc-950/50 border border-zinc-800/40 rounded-2xl p-2.5">
+                        <div class="flex justify-between items-center bg-zinc-950/40 border border-zinc-800/40 rounded-2xl p-2.5">
                             <span class="text-xs text-zinc-400">Статус на ${getDayNumber(activeSelectedDate)} число:</span>
                             ${!isAvailable ? `<span class="text-xs text-zinc-600 italic px-3">Ещё не создана</span>` : `
                                 <button onclick="toggleHabitDate('${habit.id}', '${activeSelectedDate}')" class="px-4 py-1.5 rounded-xl text-xs font-bold transition-all active:scale-95 ${
@@ -317,7 +342,23 @@
         const toggleModal = (show) => {
             triggerHaptic();
             document.getElementById('add-modal').classList.toggle('hidden', !show);
-            if(show) renderModalCategories();
+            if(show) {
+                renderModalCategories();
+                renderColorSelector();
+                setupKeyboardFix();
+            }
+        };
+
+        // РЕНДЕР ЦВЕТОВЫХ ТЕГОВ
+        const renderColorSelector = () => {
+            const container = document.getElementById('color-selector');
+            container.innerHTML = Object.keys(colorPalette).map(key => {
+                const color = colorPalette[key];
+                const isSelected = selectedColorKey === key;
+                return `
+                    <div onclick="selectedColorKey='${key}'; renderColorSelector();" class="w-6 h-6 rounded-full cursor-pointer border-2 transition-transform active:scale-90" style="background-color: ${color.raw}; border-color: ${isSelected ? '#ffffff' : 'transparent'}"></div>
+                `;
+            }).join('');
         };
 
         const renderModalCategories = () => {
@@ -325,23 +366,20 @@
             const container = document.getElementById('modal-categories');
             
             if(userCats.length === 0) {
-                container.innerHTML = `<div class="col-span-3 text-xs text-zinc-500 italic py-2 text-center">Сначала добавьте раздел ниже 👇</div>`;
+                container.innerHTML = `<div class="col-span-3 text-[11px] text-zinc-500 italic py-1 text-center">Создайте раздел ниже 👇</div>`;
                 selectedModalCategory = '';
                 return;
             }
 
-            if(!selectedModalCategory && userCats.length > 0) {
-                selectedModalCategory = userCats[0].id;
-            }
+            if(!selectedModalCategory && userCats.length > 0) selectedModalCategory = userCats[0].id;
 
             container.innerHTML = userCats.map(cat => `
-                <button onclick="selectedModalCategory='${cat.id}'; renderModalCategories();" type="button" class="px-3 py-2 rounded-xl text-xs font-bold border transition-all text-center ${
+                <button onclick="selectedModalCategory='${cat.id}'; renderModalCategories();" type="button" class="px-2 py-1.5 rounded-xl text-xs font-bold border transition-all text-center truncate ${
                     selectedModalCategory === cat.id ? 'bg-indigo-500 border-indigo-500 text-white' : 'bg-zinc-800 border-zinc-700 text-zinc-400'
-                }"><div>${cat.icon}</div><div class="mt-0.5 truncate">${cat.title}</div></button>
+                }"><span>${cat.icon}</span> <span class="ml-0.5">${cat.title}</span></button>
             `).join('');
         };
 
-        // Создание нового раздела
         const createNewCategory = () => {
             const titleInput = document.getElementById('category-title');
             const iconInput = document.getElementById('category-icon');
@@ -351,7 +389,7 @@
             if (!title) return;
 
             const newId = 'cat_' + Date.now();
-            state.categories.push({ id: newId, title: title, icon: icon });
+            state.categories.push({ id: newId, title: title, icon: icon, color: selectedColorKey });
             saveData();
             
             titleInput.value = '';
@@ -360,7 +398,6 @@
             renderModalCategories();
         };
 
-        // Создание новой привычки
         const createNewHabit = () => {
             const title = document.getElementById('habit-title').value.trim();
             if (!title) return;
@@ -377,6 +414,19 @@
             toggleModal(false);
             document.getElementById('habit-title').value = '';
             initApp();
+        };
+
+        // СКРИПТ АДАПТАЦИИ ПОД ВИРТУАЛЬНУЮ КЛАВИАТУРУ
+        const setupKeyboardFix = () => {
+            const inputs = document.querySelectorAll('.input-field');
+            inputs.forEach(input => {
+                // При клике на инпут плавно подвигаем модалку, чтобы поле было видно по центру
+                input.addEventListener('focus', () => {
+                    setTimeout(() => {
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 250);
+                });
+            });
         };
 
         const initApp = () => {
