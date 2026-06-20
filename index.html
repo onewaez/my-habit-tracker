@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Habit Tracker PRO v4</title>
+    <title>Habit Tracker Cyber v5</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
@@ -15,7 +15,6 @@
 <body class="bg-[#0b0b0e] text-zinc-100 font-sans min-h-screen pb-24">
 
     <div class="max-w-md mx-auto px-4 pt-4">
-        <!-- ШАПКА -->
         <div class="flex justify-between items-center mb-4">
             <div>
                 <p class="text-xs text-zinc-500 font-bold uppercase tracking-wider" id="current-month-name">Загрузка...</p>
@@ -23,74 +22,64 @@
             </div>
             <div class="bg-zinc-900 border border-zinc-800 rounded-2xl px-3 py-1.5 text-center min-w-[80px]">
                 <span class="text-[9px] text-zinc-500 block uppercase font-bold tracking-tight">Общий КПД</span>
-                <span class="text-sm font-black text-indigo-400" id="global-success">0%</span>
+                <span class="text-sm font-black text-cyan-400" id="global-success">0%</span>
             </div>
         </div>
 
-        <!-- КАТЕГОРИИ -->
         <div class="flex gap-2 overflow-x-auto pb-3 no-scrollbar" id="categories-container"></div>
 
-        <!-- МАСШТАБНЫЙ КАЛЕНДАРЬ-СЕТКА -->
         <div class="bg-zinc-900/50 border border-zinc-800/80 rounded-3xl p-4 mb-5">
             <div class="grid grid-cols-7 gap-1 text-center text-[10px] font-bold text-zinc-500 uppercase mb-2">
                 <div>Пн</div><div>Вт</div><div>Ср</div><div>Чт</div><div>Пт</div><div>Сб</div><div class="text-rose-500/80">Вс</div>
             </div>
-            <div class="grid grid-cols-7 gap-1.5" id="calendar-grid"><!-- Генерируется из JS --></div>
+            <div class="grid grid-cols-7 gap-1.5" id="calendar-grid"></div>
         </div>
 
-        <!-- ЗАГОЛОВОК ЛЕНТЫ ПРИВЫЧЕК -->
         <div class="flex justify-between items-center mb-3 px-1">
             <h2 class="text-xs font-bold uppercase text-zinc-400 tracking-wider" id="selected-day-label">Привычки на сегодня</h2>
             <span class="text-[11px] text-zinc-500 font-medium" id="day-stats-summary">0 / 0 выполнено</span>
         </div>
 
-        <!-- СПИСОК ПРИВЫЧЕК -->
         <div class="space-y-3" id="habits-list"></div>
 
-        <!-- МАТРИЦА ПРОДУКТИВНОСТИ (GITHUB HEATMAP) -->
         <div class="mt-6 bg-zinc-900/30 border border-zinc-800/50 rounded-3xl p-4">
             <h3 class="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-2">Матрица продуктивности (30 дней)</h3>
             <div class="flex flex-wrap gap-1" id="github-heatmap"></div>
         </div>
 
-        <!-- ПЛАВАЮЩАЯ КНОПКА ДОБАВЛЕНИЯ -->
-        <button onclick="toggleModal(true)" class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-indigo-500/20 transition-transform active:scale-95 z-40">
+        <button onclick="toggleModal(true)" class="fixed bottom-6 right-6 w-14 h-14 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full flex items-center justify-center text-white text-2xl font-bold shadow-lg shadow-cyan-500/20 transition-transform active:scale-95 z-40">
             +
         </button>
     </div>
 
-    <!-- МОДАЛЬНОЕ ОКНО С ПОДДЕРЖКОЙ ТИПОВ ПРИВЫЧЕК -->
-    <div id="add-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-end sm:items-center justify-center hidden z-50 p-3">
-        <div class="bg-zinc-900 border border-zinc-800 w-full max-w-md rounded-t-3xl sm:rounded-3xl p-5 space-y-4 shadow-2xl overflow-y-auto max-h-[85vh] no-scrollbar" id="modal-card">
+    <div id="add-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm overflow-y-auto p-4 flex items-center justify-center hidden z-50">
+        <div class="bg-zinc-900 border border-zinc-800 w-full max-w-md rounded-2xl p-5 space-y-4 shadow-2xl my-auto transition-all duration-200" id="modal-card">
             
             <div class="flex justify-between items-center pb-2 border-b border-zinc-800/60">
                 <h3 class="text-sm font-bold text-zinc-200">Панель создания</h3>
                 <button onclick="toggleModal(false)" class="text-zinc-400 text-xs bg-zinc-800 px-3 py-1 rounded-xl">Закрыть</button>
             </div>
             
-            <!-- СОЗДАНИЕ ПРИВЫЧКИ -->
             <div class="space-y-3">
-                <h4 class="text-[10px] font-black uppercase tracking-wider text-indigo-400">⚡️ Новая привычка</h4>
-                <input type="text" id="habit-title" placeholder="Название (например: Поучить C++, Зал...)" class="w-full bg-zinc-850 border border-zinc-700/60 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 input-field">
+                <h4 class="text-[10px] font-black uppercase tracking-wider text-cyan-400">⚡️ Новая привычка</h4>
+                <input type="text" id="habit-title" placeholder="Название (например: Поучить C++, Зал...)" class="w-full bg-zinc-800 border border-zinc-700/80 rounded-xl px-4 py-2.5 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-cyan-500 input-field">
                 
-                <!-- ВЫБОР ТИПА -->
                 <div>
                     <label class="text-[10px] text-zinc-400 font-bold block mb-1 uppercase">Тип цели:</label>
                     <div class="grid grid-cols-2 gap-2">
-                        <button id="type-binary" onclick="setHabitType('binary')" class="py-2 rounded-xl text-xs font-bold border bg-indigo-500 border-indigo-500 text-white">Да / Нет</button>
-                        <button id="type-numeric" onclick="setHabitType('numeric')" class="py-2 rounded-xl text-xs font-bold border bg-zinc-800 border-zinc-700 text-zinc-400">Числовой счетчик</button>
+                        <button id="type-binary" onclick="setHabitType('binary')" class="py-2 rounded-xl text-xs font-bold border bg-cyan-500 border-cyan-500 text-white transition-colors">Да / Нет</button>
+                        <button id="type-numeric" onclick="setHabitType('numeric')" class="py-2 rounded-xl text-xs font-bold border bg-zinc-800 border-zinc-700 text-zinc-400 transition-colors">Числовой счетчик</button>
                     </div>
                 </div>
 
-                <!-- ДОП НАСТРОЙКИ ДЛЯ ЧИСЛОВОГО ТИПА -->
                 <div id="numeric-options" class="hidden grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-[9px] text-zinc-500 font-bold block mb-1">План (Число)</label>
-                        <input type="number" id="habit-target" value="60" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-1.5 text-sm text-center input-field">
+                        <input type="number" id="habit-target" value="60" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-1.5 text-sm text-center text-white input-field">
                     </div>
                     <div>
                         <label class="text-[9px] text-zinc-500 font-bold block mb-1">Ед. изм.</label>
-                        <input type="text" id="habit-units" value="мин" placeholder="мл, км, стр" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-1.5 text-sm text-center input-field">
+                        <input type="text" id="habit-units" value="мин" placeholder="мл, км, стр" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-1.5 text-sm text-center text-white input-field">
                     </div>
                 </div>
 
@@ -99,24 +88,36 @@
                     <div class="grid grid-cols-3 gap-1.5" id="modal-categories"></div>
                 </div>
 
-                <button onclick="createNewHabit()" class="w-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider shadow-md">
+                <button onclick="createNewHabit()" class="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-700 text-white font-bold py-3 rounded-xl text-xs uppercase tracking-wider shadow-md active:scale-[0.99] transition-all">
                     Создать привычку
                 </button>
             </div>
 
-            <!-- СОЗДАНИЕ РАЗДЕЛА -->
             <div class="border-t border-zinc-800/80 pt-4 space-y-3">
                 <h4 class="text-[10px] font-black uppercase tracking-wider text-amber-400">🎨 Новый раздел</h4>
+                
+                <div class="p-2.5 bg-zinc-950/40 border border-zinc-800/60 rounded-xl flex items-center justify-between">
+                    <span class="text-[9px] text-zinc-500 font-bold uppercase">Превью:</span>
+                    <span id="tag-live-preview" class="text-[10px] font-bold px-2.5 py-0.5 rounded-full border bg-cyan-500/10 text-cyan-400 border-cyan-500/30">🚀 Название</span>
+                </div>
+
                 <div class="grid grid-cols-3 gap-2">
                     <div class="col-span-1">
-                        <input type="text" id="category-icon" value="🚀" class="w-full text-center bg-zinc-800 border border-zinc-700 rounded-xl py-2 text-sm input-field">
+                        <label class="text-[9px] text-zinc-500 font-bold block mb-1">Эмодзи</label>
+                        <input type="text" id="category-icon" value="🚀" class="w-full text-center bg-zinc-800 border border-zinc-700 rounded-xl py-2 text-sm text-white input-field">
                     </div>
                     <div class="col-span-2">
-                        <input type="text" id="category-title" placeholder="Название раздела" class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-sm input-field">
+                        <label class="text-[9px] text-zinc-500 font-bold block mb-1">Название раздела</label>
+                        <input type="text" id="category-title" placeholder="Gym, Код, Вуз..." class="w-full bg-zinc-800 border border-zinc-700 rounded-xl px-3 py-2 text-sm text-white placeholder-zinc-500 input-field">
                     </div>
                 </div>
-                <div class="flex gap-2 justify-center" id="color-selector"></div>
-                <button onclick="createNewCategory()" class="w-full bg-zinc-800 hover:bg-zinc-750 text-amber-400 border border-zinc-700 font-bold py-2 rounded-xl text-[10px] uppercase tracking-wider">
+                
+                <div>
+                    <label class="text-[9px] text-zinc-500 font-bold block mb-1">Маркер цвета</label>
+                    <div class="flex gap-2 justify-center py-1" id="color-selector"></div>
+                </div>
+
+                <button onclick="createNewCategory()" class="w-full bg-zinc-800 hover:bg-zinc-750 text-amber-400 border border-zinc-700/80 font-bold py-2 rounded-xl text-[10px] uppercase tracking-wider active:scale-[0.99] transition-all">
                     + Добавить раздел
                 </button>
             </div>
@@ -128,31 +129,29 @@
         if (tg) { tg.ready(); tg.expand(); }
 
         const colorPalette = {
-            indigo: { border: 'border-indigo-500/30', bg: 'bg-indigo-500/10', text: 'text-indigo-400', raw: '#6366f1' },
+            cyan: { border: 'border-cyan-500/30', bg: 'bg-cyan-500/10', text: 'text-cyan-400', raw: '#06b6d4' },
             emerald: { border: 'border-emerald-500/30', bg: 'bg-emerald-500/10', text: 'text-emerald-400', raw: '#10b981' },
             amber: { border: 'border-amber-500/30', bg: 'bg-amber-500/10', text: 'text-amber-400', raw: '#f59e0b' },
             rose: { border: 'border-rose-500/30', bg: 'bg-rose-500/10', text: 'text-rose-400', raw: '#f43f5e' },
-            purple: { border: 'border-purple-500/30', bg: 'bg-purple-500/10', text: 'text-purple-400', raw: '#a855f7' }
+            blue: { border: 'border-blue-500/30', bg: 'bg-blue-500/10', text: 'text-blue-400', raw: '#3b82f6' }
         };
 
         let state = {
             habits: [],
-            categories: [{ id: 'All', title: 'Все', icon: '✨', color: 'indigo' }]
+            categories: [{ id: 'All', title: 'Все', icon: '✨', color: 'cyan' }]
         };
 
         let currentFilter = 'All';
         let selectedModalCategory = '';
-        let selectedColorKey = 'indigo';
-        let currentNewHabitType = 'binary'; // binary или numeric
+        let selectedColorKey = 'cyan';
+        let currentNewHabitType = 'binary';
 
-        // ГЕНЕРАЦИЯ ДАТ ДЛЯ КАЛЕНДАРЯ НА ТЕКУЩИЙ МЕСЯЦ
         const now = new Date();
         const currentYear = now.getFullYear();
         const currentMonth = now.getMonth();
         
         const getDaysInMonthGrid = () => {
             const firstDayIndex = new Date(currentYear, currentMonth, 1).getDay();
-            // Сдвиг для СНГ (чтобы неделя начиналась с Понедельника, а не Воскресенья)
             const paddingDays = firstDayIndex === 0 ? 6 : firstDayIndex - 1;
             const totalDays = new Date(currentYear, currentMonth + 1, 0).getDate();
             
@@ -166,17 +165,16 @@
         };
 
         const monthGridDates = getDaysInMonthGrid();
-        // Находим сегодняшнюю дату в формате YYYY-MM-DD
         const todayStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         let activeSelectedDate = todayStr;
 
         const loadData = () => {
             if (tg?.CloudStorage) {
-                tg.CloudStorage.getItem('tma_state_v4', (err, value) => {
+                tg.CloudStorage.getItem('tma_state_v5', (err, value) => {
                     if (!err && value) { 
                         state = JSON.parse(value);
                         if(!state.categories.some(c => c.id === 'All')) {
-                            state.categories.unshift({ id: 'All', title: 'Все', icon: '✨', color: 'indigo' });
+                            state.categories.unshift({ id: 'All', title: 'Все', icon: '✨', color: 'cyan' });
                         }
                     } else { loadLocalStorage(); }
                     initApp();
@@ -185,26 +183,25 @@
         };
 
         const loadLocalStorage = () => {
-            const local = localStorage.getItem('tma_state_v4');
+            const local = localStorage.getItem('tma_state_v5');
             if (local) state = JSON.parse(local);
         };
 
         const saveData = () => {
             const jsonStr = JSON.stringify(state);
-            localStorage.setItem('tma_state_v4', jsonStr);
-            if (tg?.CloudStorage) tg.CloudStorage.setItem('tma_state_v4', jsonStr, () => {});
+            localStorage.setItem('tma_state_v5', jsonStr);
+            if (tg?.CloudStorage) tg.CloudStorage.setItem('tma_state_v5', jsonStr, () => {});
         };
 
         const triggerHaptic = () => { if (tg?.HapticFeedback) tg.HapticFeedback.impactOccurred('light'); };
 
         const setHabitType = (type) => {
             currentNewHabitType = type;
-            document.getElementById('type-binary').className = type === 'binary' ? 'py-2 rounded-xl text-xs font-bold border bg-indigo-500 border-indigo-500 text-white' : 'py-2 rounded-xl text-xs font-bold border bg-zinc-800 border-zinc-700 text-zinc-400';
-            document.getElementById('type-numeric').className = type === 'numeric' ? 'py-2 rounded-xl text-xs font-bold border bg-indigo-500 border-indigo-500 text-white' : 'py-2 rounded-xl text-xs font-bold border bg-zinc-800 border-zinc-700 text-zinc-400';
+            document.getElementById('type-binary').className = type === 'binary' ? 'py-2 rounded-xl text-xs font-bold border bg-cyan-500 border-cyan-500 text-white' : 'py-2 rounded-xl text-xs font-bold border bg-zinc-800 border-zinc-700 text-zinc-400';
+            document.getElementById('type-numeric').className = type === 'numeric' ? 'py-2 rounded-xl text-xs font-bold border bg-cyan-500 border-cyan-500 text-white' : 'py-2 rounded-xl text-xs font-bold border bg-zinc-800 border-zinc-700 text-zinc-400';
             document.getElementById('numeric-options').classList.toggle('hidden', type !== 'numeric');
         };
 
-        // РАСЧЕТ ПРОГРЕССА ВЫПОЛНЕНИЯ ЗА ДЕНЬ (ДЛЯ СЕТКИ)
         const getDayCompletionStats = (dateStr) => {
             const dayHabits = state.habits.filter(h => dateStr >= h.createdAt);
             if (dayHabits.length === 0) return { total: 0, done: 0, percent: 0 };
@@ -221,13 +218,11 @@
             return { total: dayHabits.length, done: doneCount, percent: Math.round((doneCount / dayHabits.length) * 100) };
         };
 
-        // ТУГГЛ ДЛЯ ОБЫЧНЫХ И ОБНОВЛЕНИЕ ДЛЯ КОЛИЧЕСТВЕННЫХ ПРИВЫЧЕК
         const handleBinaryToggle = (habitId, dateStr) => {
             triggerHaptic();
             const habit = state.habits.find(h => h.id === habitId);
             if (!habit) return;
             if (!habit.history) habit.history = {};
-
             habit.history[dateStr] = habit.history[dateStr] === 1 ? 0 : 1;
             saveAndRefresh();
         };
@@ -236,39 +231,30 @@
             const habit = state.habits.find(h => h.id === habitId);
             if (!habit) return;
             if (!habit.history) habit.history = {};
-
             habit.history[dateStr] = Math.max(0, parseFloat(value) || 0);
             saveAndRefresh();
         };
 
         const saveAndRefresh = () => {
-            saveData();
-            renderHabits();
-            renderCalendarGrid();
-            renderGlobalStats();
-            renderHeatmap();
+            saveData(); renderHabits(); renderCalendarGrid(); renderGlobalStats(); renderHeatmap();
         };
 
-        // РЕНДЕР КАЛЕНДАРНОЙ СЕТКИ С ЦВЕТОВЫМ ОТОБРАЖЕНИЕМ ПРОГРЕССА
         const renderCalendarGrid = () => {
             const container = document.getElementById('calendar-grid');
             container.innerHTML = monthGridDates.map(dateStr => {
-                if (!dateStr) return `<div class="aspect-square"></div>`; // Пустышка для выравнивания дней недели
-                
+                if (!dateStr) return `<div class="aspect-square"></div>`;
                 const dayNum = parseInt(dateStr.split('-')[2]);
                 const isSelected = activeSelectedDate === dateStr;
                 const isToday = todayStr === dateStr;
-                
                 const stats = getDayCompletionStats(dateStr);
                 
-                // Рассчитываем цвет бэкграунда на основе выполнения целей дня
                 let bgStyle = 'bg-zinc-950 text-zinc-400 border border-zinc-800/40';
                 if (stats.total > 0) {
                     if (stats.percent === 100) bgStyle = 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-black';
-                    else if (stats.percent > 0) bgStyle = 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30';
+                    else if (stats.percent > 0) bgStyle = 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/30';
                 }
 
-                const ringStyle = isSelected ? 'ring-2 ring-indigo-400 ring-offset-2 ring-offset-[#0b0b0e]' : '';
+                const ringStyle = isSelected ? 'ring-2 ring-cyan-400 ring-offset-2 ring-offset-[#0b0b0e]' : '';
                 const todayIndicator = isToday ? 'underline decoration-2 font-black text-white' : '';
 
                 return `
@@ -285,15 +271,12 @@
             activeSelectedDate = dateStr;
             const options = { day: 'numeric', month: 'long' };
             document.getElementById('selected-day-label').innerText = `Привычки на ${new Date(dateStr).toLocaleDateString('ru-RU', options)}`;
-            renderCalendarGrid();
-            renderHabits();
+            renderCalendarGrid(); renderHabits();
         };
 
-        // РЕНДЕР КАРТОЧЕК ПРИВЫЧЕК
         const renderHabits = () => {
             const filtered = state.habits.filter(h => currentFilter === 'All' || h.category === currentFilter);
             const container = document.getElementById('habits-list');
-
             const dayStats = getDayCompletionStats(activeSelectedDate);
             document.getElementById('day-stats-summary').innerText = `${dayStats.done} из ${dayStats.total} выполнено`;
 
@@ -305,11 +288,9 @@
             container.innerHTML = filtered.map(habit => {
                 const isAvailable = activeSelectedDate >= habit.createdAt;
                 const record = (habit.history && habit.history[activeSelectedDate]) || 0;
-                
-                const cat = state.categories.find(c => c.id === habit.category) || { title: 'Общее', icon: '📁', color: 'indigo' };
-                const cMap = colorPalette[cat.color] || colorPalette.indigo;
+                const cat = state.categories.find(c => c.id === habit.category) || { title: 'Общее', icon: '📁', color: 'cyan' };
+                const cMap = colorPalette[cat.color] || colorPalette.cyan;
 
-                // Умный расчет стрика
                 let streak = 0;
                 let check = new Date(todayStr);
                 if (!habit.history || !habit.history[todayStr]) check.setDate(check.getDate() - 1);
@@ -330,14 +311,14 @@
                         <div class="w-full mt-3">
                             <div class="flex justify-between items-center text-xs mb-1">
                                 <span class="text-zinc-400">Прогресс: <span class="text-white font-bold">${record}</span> / ${habit.target} ${habit.units}</span>
-                                <span class="text-[10px] font-bold text-indigo-400">${pct}%</span>
+                                <span class="text-[10px] font-bold text-cyan-400">${pct}%</span>
                             </div>
                             <div class="w-full bg-zinc-950 rounded-full h-1.5 border border-zinc-800 overflow-hidden mb-2">
-                                <div class="bg-gradient-to-r from-indigo-500 to-purple-500 h-1.5 rounded-full transition-all" style="width: ${pct}%"></div>
+                                <div class="bg-gradient-to-r from-cyan-400 to-blue-500 h-1.5 rounded-full transition-all" style="width: ${pct}%"></div>
                             </div>
                             <div class="flex gap-2 items-center">
-                                <input type="number" value="${record}" onchange="handleNumericChange('${habit.id}', '${activeSelectedDate}', this.value)" class="w-20 text-center bg-zinc-950 border border-zinc-800 rounded-lg py-1 text-xs text-white focus:outline-none focus:border-indigo-500 input-field">
-                                <button onclick="handleNumericChange('${habit.id}', '${activeSelectedDate}', ${record + 1})" class="bg-zinc-800 text-white font-black px-3 py-1 rounded-lg text-xs hover:bg-zinc-700 active:scale-95 transition-all">+1</button>
+                                <input type="number" value="${record}" onchange="handleNumericChange('${habit.id}', '${activeSelectedDate}', this.value)" class="w-20 text-center bg-zinc-950 border border-zinc-800 rounded-lg py-1 text-xs text-white focus:outline-none focus:border-cyan-500 input-field">
+                                <button onclick="handleNumericChange('${habit.id}', '${activeSelectedDate}', ${record + 1})" class="bg-zinc-800 text-white font-black px-3 py-1 rounded-lg text-xs hover:bg-zinc-750 active:scale-95 transition-all">+1</button>
                             </div>
                         </div>
                     `;
@@ -371,7 +352,6 @@
             }).join('');
         };
 
-        // GITHUB-STYLE HEATMAP (ПОСЛЕДНИЕ 30 КАЛЕНДАРНЫХ ДНЕЙ)
         const renderHeatmap = () => {
             const container = document.getElementById('github-heatmap');
             const past30Days = [];
@@ -379,14 +359,13 @@
                 const d = new Date(); d.setDate(d.getDate() - i);
                 past30Days.push(d.toISOString().split('T')[0]);
             }
-
             container.innerHTML = past30Days.map(dateStr => {
                 const stats = getDayCompletionStats(dateStr);
                 let heatColor = 'bg-zinc-900';
                 if (stats.total > 0) {
                     if (stats.percent === 100) heatColor = 'bg-emerald-500';
-                    else if (stats.percent >= 50) heatColor = 'bg-indigo-500';
-                    else if (stats.percent > 0) heatColor = 'bg-indigo-800';
+                    else if (stats.percent >= 50) heatColor = 'bg-cyan-500';
+                    else if (stats.percent > 0) heatColor = 'bg-cyan-800';
                 }
                 return `<div class="w-3.5 h-3.5 rounded-[3px] ${heatColor}" title="${dateStr}: ${stats.percent}%"></div>`;
             }).join('');
@@ -395,7 +374,7 @@
         const renderCategories = () => {
             document.getElementById('categories-container').innerHTML = state.categories.map(cat => `
                 <button onclick="setFilter('${cat.id}')" class="shrink-0 flex items-center gap-1 px-3.5 py-2 rounded-2xl text-xs font-bold border transition-all ${
-                    currentFilter === cat.id ? 'bg-indigo-500 border-indigo-500 text-white shadow-md' : 'bg-zinc-900 border-zinc-800 text-zinc-400'
+                    currentFilter === cat.id ? 'bg-cyan-500 border-cyan-500 text-white shadow-md shadow-cyan-500/10' : 'bg-zinc-900 border-zinc-800 text-zinc-400'
                 }">
                     <span>${cat.icon}</span> <span>${cat.title}</span>
                 </button>
@@ -403,6 +382,18 @@
         };
 
         const setFilter = (catId) => { triggerHaptic(); currentFilter = catId; renderCategories(); renderHabits(); };
+
+        // ЖИВОЕ ОБНОВЛЕНИЕ ПРЕВЬЮ ТЕГА
+        const updateTagPreview = () => {
+            const title = document.getElementById('category-title').value.trim() || 'Название';
+            const icon = document.getElementById('category-icon').value.trim() || '🚀';
+            const previewEl = document.getElementById('tag-live-preview');
+            
+            const color = colorPalette[selectedColorKey] || colorPalette.cyan;
+            
+            previewEl.className = `text-[10px] font-bold px-2.5 py-0.5 rounded-full border ${color.bg} ${color.text} ${color.border} transition-all duration-150`;
+            previewEl.innerText = `${icon} ${title}`;
+        };
 
         const createNewHabit = () => {
             const title = document.getElementById('habit-title').value.trim();
@@ -422,8 +413,7 @@
                 history: {}
             });
 
-            saveData();
-            toggleModal(false);
+            saveData(); toggleModal(false);
             document.getElementById('habit-title').value = '';
             initApp();
         };
@@ -438,9 +428,7 @@
             saveData();
             
             document.getElementById('category-title').value = '';
-            triggerHaptic();
-            renderCategories();
-            renderModalCategories();
+            triggerHaptic(); renderCategories(); renderModalCategories(); updateTagPreview();
         };
 
         const deleteHabit = (habitId) => {
@@ -449,7 +437,7 @@
 
         const renderColorSelector = () => {
             document.getElementById('color-selector').innerHTML = Object.keys(colorPalette).map(key => `
-                <div onclick="selectedColorKey='${key}'; renderColorSelector();" class="w-5 h-5 rounded-full cursor-pointer border transition-transform active:scale-90" style="background-color: ${colorPalette[key].raw}; border-color: ${selectedColorKey === key ? '#ffffff' : 'transparent'}"></div>
+                <div onclick="selectedColorKey='${key}'; renderColorSelector(); updateTagPreview();" class="w-6 h-6 rounded-full cursor-pointer border-2 transition-transform active:scale-90" style="background-color: ${colorPalette[key].raw}; border-color: ${selectedColorKey === key ? '#ffffff' : 'transparent'}"></div>
             `).join('');
         };
 
@@ -461,7 +449,7 @@
 
             container.innerHTML = userCats.map(cat => `
                 <button onclick="selectedModalCategory='${cat.id}'; renderModalCategories();" type="button" class="px-2 py-1.5 rounded-xl text-[11px] font-bold border transition-all text-center truncate ${
-                    selectedModalCategory === cat.id ? 'bg-indigo-500 border-indigo-500 text-white' : 'bg-zinc-800 border-zinc-700 text-zinc-400'
+                    selectedModalCategory === cat.id ? 'bg-cyan-500 border-cyan-500 text-white' : 'bg-zinc-800 border-zinc-700 text-zinc-400'
                 }"><span>${cat.icon}</span> <span class="ml-0.5">${cat.title}</span></button>
             `).join('');
         };
@@ -469,7 +457,6 @@
         const renderGlobalStats = () => {
             if (state.habits.length === 0) { document.getElementById('global-success').innerText = '0%'; return; }
             let totalPossible = 0; let totalDone = 0;
-            // Считаем КПД за текущий месяц по всем дням, что прошли с момента создания привычек
             monthGridDates.forEach(d => {
                 if(!d) return;
                 state.habits.forEach(h => {
@@ -486,13 +473,25 @@
         const toggleModal = (show) => {
             triggerHaptic();
             document.getElementById('add-modal').classList.toggle('hidden', !show);
-            if(show) { renderModalCategories(); renderColorSelector(); setupKeyboardFix(); }
+            if(show) { 
+                renderModalCategories(); renderColorSelector(); updateTagPreview(); setupKeyboardFix(); 
+            }
         };
 
+        // НАДЕЖНЫЙ МЕТОД ДИНАМИЧЕСКИХ ОТСТУПОВ ОТ КЛАВИАТУРЫ
         const setupKeyboardFix = () => {
+            const card = document.getElementById('modal-card');
             document.querySelectorAll('.input-field').forEach(input => {
                 input.addEventListener('focus', () => {
-                    setTimeout(() => { input.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 250);
+                    // Создаем гигантскую буферную зону снизу модалки
+                    card.style.paddingBottom = '240px';
+                    setTimeout(() => {
+                        input.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }, 180);
+                });
+                input.addEventListener('blur', () => {
+                    // Возвращаем стандартный отступ
+                    card.style.paddingBottom = '20px';
                 });
             });
         };
@@ -500,10 +499,13 @@
         const initApp = () => {
             const options = { month: 'long', year: 'numeric' };
             document.getElementById('current-month-name').innerText = new Date().toLocaleDateString('ru-RU', options);
+            
+            // Навешиваем слушатели для Живого Превью тега
+            document.getElementById('category-title').addEventListener('input', updateTagPreview);
+            document.getElementById('category-icon').addEventListener('input', updateTagPreview);
+
             selectGridDate(todayStr);
-            renderCategories();
-            renderGlobalStats();
-            renderHeatmap();
+            renderCategories(); renderGlobalStats(); renderHeatmap();
         };
 
         window.onload = loadData;
